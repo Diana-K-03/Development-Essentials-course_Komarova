@@ -1,6 +1,6 @@
 #3. Complex numbers
-point_a = 2 + 3j
-point_b = 1 + 1j
+point_a = 2*8 + 3j 
+point_b = 1*2 + 1j
 
 print("Point A at the graph:", point_a)
 print("Point B at the graph:", point_b)
