@@ -1,27 +1,42 @@
-import numpy as np
-
 def best_rod_cutting(prices, n):
-    dp = np.zeros(n + 1, dtype=int)
+    """
+    prices: list where prices[i-1] is price for length i
+    n: total rod length (int)
+    Returns: (max_value, pieces)
+    """
+    if n <= 0:
+        return 0, []
+    dp = [float('-inf')] * (n + 1)
+    dp[0] = 0
     cut = [0] * (n + 1)
 
+    def piece_price(L):
+        return prices[L - 1] if 1 <= L <= len(prices) else float('-inf')
+
     for i in range(1, n + 1):
-        max_val = -1
-        for j in range(1, i + 1):
-            if max_val < prices[j - 1] + dp[i - j]:
-                max_val = prices[j - 1] + dp[i - j]
-                cut[i] = j
-        dp[i] = max_val
+        # consider selling whole piece if price known
+        best = piece_price(i)
+        first = 0 if best != float('-inf') else -1
+        # try splitting into j and i-j
+        for j in range(1, i):
+            left = dp[j]
+            right = dp[i - j]
+            total = left + right
+            if total > best:
+                best = total
+                first = j
+        dp[i] = best
+        cut[i] = first if first != -1 else i  # if nothing valid, fallback to whole length
 
-    lengths = []
-    while n > 0:
-        lengths.append(cut[n])
-        n -= cut[n]
+    # reconstruct parts
+    pieces = []
+    length = n
+    while length > 0:
+        c = cut[length]
+        if c == 0:
+            pieces.append(length)
+            break
+        pieces.append(c)
+        length -= c
 
-    return dp[-1], lengths
-
-
-prices = [1, 5, 8, 9, 10, 17, 17, 20]
-n = 8
-value, cuts = best_rod_cutting(prices, n)
-print("Maximum Value:", value)
-print("Recommended lengths:", cuts)
+    return int(dp[n]), pieces
